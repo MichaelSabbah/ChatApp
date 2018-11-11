@@ -1,27 +1,22 @@
 package com.chatapp.logic;
 
+import com.amazonaws.services.s3.model.Region;
+
 public class Message{
 	
 	private String senderUsername;
 	private String receiverUsername;
-	private Locations destinationId;
+	private Region destinationRegion;
 	private String content;
 	private MessageType messageType;
-	
-	public MessageType getMessageType() {
-		return messageType;
-	}
 
-	public void setMessageType(MessageType messageType) {
-		this.messageType = messageType;
-	}
-
-	public Message(String senderUsername, String receiverUsername, Locations destinationId, String content) {
+	public Message(String senderUsername, String receiverUsername, Region destinationRegion, String content, MessageType messageType) {
 		super();
 		this.senderUsername = senderUsername;
 		this.receiverUsername = receiverUsername;
-		this.destinationId = destinationId;
+		this.destinationRegion = destinationRegion;
 		this.content = content;
+		this.messageType = messageType;
 	}
 
 	public String getContent() {
@@ -45,12 +40,19 @@ public class Message{
 		this.receiverUsername = receiverUsername;
 	}
 	
-	public Locations getDestinationId() {
-		return destinationId;
+	public Region getDestinationRegion() {
+		return destinationRegion;
 	}
 
-	public void setDestinationId(Locations destinationId) {
-		this.destinationId = destinationId;
+	public void setDestinationRegion(Region destinationRegion) {
+		this.destinationRegion = destinationRegion;
 	}
 
+	public MessageType getMessageType() {
+		return messageType;
+	}
+
+	public void setMessageType(MessageType messageType) {
+		this.messageType = messageType;
+	}
 }

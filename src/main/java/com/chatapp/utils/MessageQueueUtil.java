@@ -7,6 +7,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -59,9 +60,9 @@ public class MessageQueueUtil {
 		
 		return messageQueueUtil;
 	}
-	
+
 	public void sendMessage(Message message) {
-		String sqsUrl = getSQSUrlByLocationId(message.getDestinationId());
+		String sqsUrl = getSQSUrlByRegion(message.getDestinationRegion());
 		
 		//Set message attributes
 		Map<String,MessageAttributeValue> attributes = new HashMap<String,MessageAttributeValue>();
@@ -87,27 +88,46 @@ public class MessageQueueUtil {
 						  .withMessageAttributes(attributes)
 						  .withMessageBody(message.getContent());
 		
-        sqs.sendMessage(sendMessageRequest);
+	    sqs.sendMessage(sendMessageRequest);
 	}
 	
 	
-	private String getSQSUrlByLocationId(Locations locationId){
+	public void receiveMessages(Region region) {
+		
+	}
+	
+	private String getSQSUrlByRegion(Region ragion  /*Locations locationId*/){
 		
 		String sqsUrl = null;
 		
-		switch(locationId) {
-			case US_EAST:
+		switch(ragion) {
+			case US_East_2:
 				sqsUrl = AppConsts.US_EAST_SQS_URL;
 				break;
-			case US_WEST:
+			case US_West_2:
 				sqsUrl = AppConsts.US_WEST_SQS_URL;
 				break;
-			case EUROPE:
-				sqsUrl = AppConsts.US_EUORPE_SQS_URL;
+			case EU_London:
+				sqsUrl = AppConsts.EUORPE_LONDON_SQS_URL;
 				break;
 		}
 		
 		return sqsUrl;
 	}
+	
+	public void receiveMessage() {
+		
+	}
+	
+	
+    public static void main(String[] args) {
+    	
+    	MessageQueueUtil messageQueueUtil = MessageQueueUtil.getInstance();
+    	
+    	Message message = new Message("Amir","Moshe",Region.US_West_2,"This is the content of the message",MessageType.TEXT);
+    	
+    	messageQueueUtil.sendMessage(message);
+    	
+    }
 	
 }

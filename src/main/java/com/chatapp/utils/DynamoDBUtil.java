@@ -14,6 +14,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.amazonaws.services.s3.model.Region;
 import com.chatapp.logic.User;
 
 public class DynamoDBUtil {
@@ -101,13 +102,13 @@ public class DynamoDBUtil {
         Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
         item.put("username", new AttributeValue(user.getUsername()));
         item.put("password", new AttributeValue(user.getPassword()));
-        item.put("location", new AttributeValue().withN(Integer.toString(user.getLocationId())));
+        item.put("location", new AttributeValue().withS(user.getRegion().toString()));
         return item;
     }
     
     public static void main(String[] args) {
     	DynamoDBUtil dynamoDBUtil = DynamoDBUtil.getInstance();
-    	User user = new User("Amir","12345",1);
+    	User user = new User("Amir","12345",Region.US_West_2);
     	dynamoDBUtil.register(user);
     	System.out.println("Register");
     	dynamoDBUtil.login("Amir", "12345");

@@ -1,15 +1,17 @@
 package com.chatapp.logic;
 
+import com.amazonaws.services.s3.model.Region;
+
 public class User {
 	
 	private String username;
 	private String password;
-	private int locationId;
+	private Region region;
 	
-	public User(String username, String password,int locationId) {
+	public User(String username, String password,Region region) {
 		this.username = username;
 		this.password = password;
-		this.locationId = locationId;
+		this.region = region;
 	}
 	
 	public String getUsername() {
@@ -25,11 +27,11 @@ public class User {
 		this.password = password;
 	}
 
-	public int getLocationId() {
-		return locationId;
+	public Region getRegion() {
+		return region;
 	}
 
-	public void setLocationId(int locationId) {
-		this.locationId = locationId;
+	public void setRegion(Region region) {
+		this.region = region;
 	}
 }
