@@ -1,16 +1,16 @@
 package com.chatapp.logic;
 
-import com.amazonaws.services.s3.model.Region;
+import com.amazonaws.regions.Regions;
 
-public class Message{
+public class ChatMessage{
 	
 	private String senderUsername;
 	private String receiverUsername;
-	private Region destinationRegion;
+	private Regions destinationRegion;
 	private String content;
 	private MessageType messageType;
 
-	public Message(String senderUsername, String receiverUsername, Region destinationRegion, String content, MessageType messageType) {
+	public ChatMessage(String senderUsername, String receiverUsername, Regions destinationRegion, String content, MessageType messageType) {
 		super();
 		this.senderUsername = senderUsername;
 		this.receiverUsername = receiverUsername;
@@ -40,11 +40,11 @@ public class Message{
 		this.receiverUsername = receiverUsername;
 	}
 	
-	public Region getDestinationRegion() {
+	public Regions getDestinationRegion() {
 		return destinationRegion;
 	}
 
-	public void setDestinationRegion(Region destinationRegion) {
+	public void setDestinationRegions(Regions destinationRegion) {
 		this.destinationRegion = destinationRegion;
 	}
 

@@ -101,15 +101,15 @@ public class InlineGettingStartedCodeSampleApp {
         RequestSpotInstancesRequest requestRequest = new RequestSpotInstancesRequest();
 
         // Request 1 x t1.micro instance with a bid price of $0.03.
-        requestRequest.setSpotPrice("0.03");
+        requestRequest.setSpotPrice("0.00");
         requestRequest.setInstanceCount(Integer.valueOf(1));
 
         // Setup the specifications of the launch. This includes the instance type (e.g. t1.micro)
         // and the latest Amazon Linux AMI id available. Note, you should always use the latest
         // Amazon Linux AMI id or another of your choosing.
         LaunchSpecification launchSpecification = new LaunchSpecification();
-        launchSpecification.setImageId("ami-8c1fece5");
-        launchSpecification.setInstanceType("t1.micro");
+        launchSpecification.setImageId("ami-a0cfeed8");
+        launchSpecification.setInstanceType("t2.micro");
 
         // Add the security group to the request.
         ArrayList<String> securityGroups = new ArrayList<String>();

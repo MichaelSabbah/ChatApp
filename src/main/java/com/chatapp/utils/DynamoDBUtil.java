@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -14,7 +15,6 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.amazonaws.services.s3.model.Region;
 import com.chatapp.logic.User;
 
 public class DynamoDBUtil {
@@ -108,7 +108,7 @@ public class DynamoDBUtil {
     
     public static void main(String[] args) {
     	DynamoDBUtil dynamoDBUtil = DynamoDBUtil.getInstance();
-    	User user = new User("Amir","12345",Region.US_West_2);
+    	User user = new User("Amir","12345",Regions.US_WEST_2);
     	dynamoDBUtil.register(user);
     	System.out.println("Register");
     	dynamoDBUtil.login("Amir", "12345");
