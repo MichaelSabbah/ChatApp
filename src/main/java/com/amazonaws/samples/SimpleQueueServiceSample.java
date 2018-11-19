@@ -71,7 +71,7 @@ public class SimpleQueueServiceSample {
 
         AmazonSQS sqs = AmazonSQSClientBuilder.standard()
                                .withCredentials(credentialsProvider)
-                               .withRegion(Regions.US_WEST_2)
+                               .withRegion(Regions.US_EAST_2)
                                .build();
 
         System.out.println("===========================================");
@@ -81,7 +81,7 @@ public class SimpleQueueServiceSample {
         try {
             // Create a queue
             System.out.println("Creating a new SQS queue called MyQueue.\n");
-            CreateQueueRequest createQueueRequest = new CreateQueueRequest("MyQueue");
+            CreateQueueRequest createQueueRequest = new CreateQueueRequest("MyNewQueue");
             String myQueueUrl = sqs.createQueue(createQueueRequest).getQueueUrl();
 
             // List queues
@@ -92,7 +92,7 @@ public class SimpleQueueServiceSample {
             System.out.println();
 
             // Send a message
-            System.out.println("Sending a message to MyQueue.\n");
+            System.out.println("Sending a message to MyNewQueue.\n");
             
             Map<String,MessageAttributeValue> attributes = new HashMap<String,MessageAttributeValue>();
             MessageAttributeValue mav = new MessageAttributeValue();  
@@ -118,7 +118,7 @@ public class SimpleQueueServiceSample {
                 System.out.println("    ReceiptHandle: " + message.getReceiptHandle());
                 System.out.println("    MD5OfBody:     " + message.getMD5OfBody());
                 System.out.println("    Body:          " + message.getBody());
-                System.out.println("attributes: " + message.getMessageAttributes());
+                System.out.println("attributes: " + message.getMessageAttributes().get("ThisIsTheNewAttribute").getStringValue());
                 for (Entry<String, String> entry : message.getAttributes().entrySet()) {
                     System.out.println("  Attribute");
                     System.out.println("    Name:  " + entry.getKey());

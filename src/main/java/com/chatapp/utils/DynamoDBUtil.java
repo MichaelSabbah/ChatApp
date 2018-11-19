@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.metrics.internal.cloudwatch.spi.RequestMetricTransformer.Utils;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -74,10 +75,10 @@ public class DynamoDBUtil {
         Map<String, AttributeValue> item = newUserItem(user);
         PutItemRequest putItemRequest = new PutItemRequest(AppConsts.USERS_TABLE_NAME,item);
         PutItemResult putItemResult = dynamoDB.putItem(putItemRequest);
-        System.out.println("Result: " + putItemResult);
+        //System.out.println("Result: " + putItemResult);
 	}
 	
-	public void login(String username,String password) {
+	public User login(String username,String password) {
         HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
         Condition userNameCondition = new Condition()
         	.withComparisonOperator(ComparisonOperator.EQ.toString())
@@ -86,16 +87,23 @@ public class DynamoDBUtil {
         ScanRequest scanRequest = new ScanRequest(AppConsts.USERS_TABLE_NAME).withScanFilter(scanFilter);
         ScanResult scanResult = dynamoDB.scan(scanRequest);
         
+        User user = null;
+        
         if(scanResult.getCount() > 0) {
         	if(password.equals(scanResult.getItems().get(0).get("password").getS())) {
         		System.out.println("Connected...");
         		System.out.println("ScanResult: " + scanResult);
+
+        		String regionStr = scanResult.getItems().get(0).get("location").getS();
+        		Regions region = ChatappUtils.converFromStringToRegions(regionStr);
+        		user = new User(username,password,region);
         	}else {
         		System.out.println("password incorrect");
         	}
         }else {
         	System.out.println("username or password incorrect");
         }
+        return user;
 	}
 
     private Map<String, AttributeValue> newUserItem(User user) {

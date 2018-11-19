@@ -3,7 +3,6 @@ package com.chatapp.utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -17,11 +16,9 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
-import com.amazonaws.services.s3.model.Region;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.chatapp.logic.Locations;
 import com.chatapp.logic.ChatMessage;
 import com.amazonaws.services.sqs.model.Message;
 import com.chatapp.logic.MessageType;
@@ -67,10 +64,15 @@ public class MessageQueueUtil {
 
 		//Set message attributes
 		Map<String,MessageAttributeValue> attributes = new HashMap<String,MessageAttributeValue>();
+		MessageAttributeValue senderUsernameValue = new MessageAttributeValue();
+		senderUsernameValue.setDataType("String");
+		senderUsernameValue.setStringValue(message.getSenderUsername());
 		MessageAttributeValue receiverUsernameValue = new MessageAttributeValue();
 		receiverUsernameValue.setDataType("String");
 		receiverUsernameValue.setStringValue(message.getReceiverUsername());
-		attributes.put("receiverUsername", receiverUsernameValue);
+		attributes.put("senderId", senderUsernameValue);
+		attributes.put("receiverId", receiverUsernameValue);
+		
 		
 		SendMessageRequest sendMessageRequest = new SendMessageRequest();
 		
@@ -100,7 +102,9 @@ public class MessageQueueUtil {
 		List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
         for (Message message : messages) {
         	System.out.println("Message body: " + message.getBody());
-        	System.out.println("attributes: " + message.getMessageAttributes());
+        	System.out.println("senderId: " + message.getMessageAttributes().get("senderId").getStringValue());
+        	System.out.println("receiverId: " + message.getMessageAttributes().get("receiverId").getStringValue());
+        	System.out.println("attributes: " + message.getAttributes());
         }
 	}
 	
@@ -116,24 +120,25 @@ public class MessageQueueUtil {
 				sqsUrl = AppConsts.US_WEST_SQS_URL;
 				break;
 			case EU_WEST_2:
-				sqsUrl = AppConsts.EUORPE_LONDON_SQS_URL;
+				sqsUrl = AppConsts.EUORPE_PARIS_SQS_URL;
 				break;
 		}
 		
 		return sqsUrl;
 	}
 
-	
     public static void main(String[] args) {
     	
-    	/*MessageQueueUtil messageQueueUtil = new MessageQueueUtil(Regions.US_WEST_2);
+    	MessageQueueUtil messageQueueUtil = new MessageQueueUtil(Regions.US_EAST_2);
     	
-    	ChatMessage message = new ChatMessage("Amir","Moshe",Regions.US_WEST_2,"This is the content of the message",MessageType.TEXT);
+    	ChatMessage message = new ChatMessage("Moshe","Amir",Regions.US_EAST_2,"This is the content of the message",MessageType.TEXT);
     	
     	messageQueueUtil.sendMessage(message);
-    	messageQueueUtil.receiveMessages(Regions.US_WEST_2);*/
     	
-        AWSCredentials credentials = null;
+    	//messageQueueUtil.receiveMessages(Regions.US_EAST_2);
+    	
+    	//Run ec2 instance
+        /*AWSCredentials credentials = null;
         try {
             credentials = new ProfileCredentialsProvider("default").getCredentials();
         } catch (Exception e) {
@@ -142,15 +147,14 @@ public class MessageQueueUtil {
                     "Please make sure that your credentials file is at the correct " +
                     "location (C:\\Users\\USER\\.aws\\credentials), and is in valid format.",
                     e);
-        }
+        }*/
         //Build EC2 instance
-    	AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
+    	/*AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion("us-east-2")
                 .build();
     	
     	try {
-    		
             //Create RunEequest for the EC2 instance
             RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
          	runInstancesRequest.withImageId("ami-0cf31d971a3ca20d6")
@@ -174,7 +178,7 @@ public class MessageQueueUtil {
                     + "a serious internal problem while trying to communicate with S3, "
                     + "such as not being able to access the network.");
             System.out.println("Error Message: " + ace.getMessage());
-        }
+        }*/
     	
     }
 	
