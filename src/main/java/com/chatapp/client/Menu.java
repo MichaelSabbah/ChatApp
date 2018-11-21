@@ -9,21 +9,19 @@ import com.chatapp.utils.DynamoDBUtil;
 public class Menu {
 	
 	private static DynamoDBUtil dynamoDBUtil = DynamoDBUtil.getInstance();
-	private static Client client;
+	private static User user;
 	
 	static Scanner s;
 	public static void main(String[] args) {
 		s = new Scanner(System.in);
-		/*boolean fContinue = true;
-		do {
-			fContinue = sign();
-		}while(fContinue);
-		do
-		{
-
-		}while(appManu());*/
-		//register();
-		signin();
+		
+		do {		
+			//Menu before connected
+			WelcomeMenu();
+			
+			//Menu after connected 
+			chatAppMenu();
+		}while(true);
 	}
 	public static void register()
 	{
@@ -35,11 +33,11 @@ public class Menu {
 		password = s.nextLine();
 		region = chooseRegion();
 		
-		User user = new User(userName,password,region);
+		user = new User(userName,password,region);
 		
 		//Register
 		dynamoDBUtil.register(user);
-		System.out.println("Congratulation! You are a member.");
+		System.out.println("Congratulation! You are a member.\n");
 	}
 	public static boolean signin()
 	{
@@ -50,44 +48,41 @@ public class Menu {
 		password = s.nextLine();
 		
 		//check validation
-		User user = dynamoDBUtil.login(userName, password);
+		user = dynamoDBUtil.login(userName, password);
 		
 		if(user != null) {
-			Client.connectToChatServer(user,ChatType.PUBLIC);
 			return true;
 		}else {
 			System.out.println("Username or Password are inccorect");
 			return false;
 		}
 	}
+
 	public static boolean appManu()
 	{
 		int choice = 0;
-		String recieverUsername;
-		System.out.println("Hello ***, you have  new messages.");
-		System.out.println("*1* Press 1 to check out new messages");
-		System.out.println("*2* Press 2 to send new message");
+		
+		System.out.println("*1* Press 1 to connect to the local chat");
+		System.out.println("*2* Press 2 to connect to the global chat");
 		System.out.println("*2* Press 3 to view history");
-		System.out.println("*0* Press 0 to exit");
+		System.out.println("*0* Press 0 to signout");
+		
 		choice = s.nextInt();
+		
 		switch(choice)
 		{
 		case 0 :
-			System.out.println("ByeBye...");
+			System.out.println("ByeBye...\n");
 			return false;
 		case 1:
-			//Retrieve from queue
+			Client.connectToChatServer(user,ChatType.LOCAL);
 			return true;
 		case 2:
-			System.out.println("Enter username");
-			recieverUsername = s.nextLine();
-			System.out.println("Enter message");
-			recieverUsername = s.nextLine();
-			//send messgae to receiver queue
-			//send message to my queue
+			Client.connectToChatServer(user,ChatType.GLOBAL);
+			//Connect to global server
 			return true;
 		case 3:
-			//retrieve from bucket
+			//Retrieve all messages from bucket
 			return true;
 		default:
 			return true;
@@ -100,21 +95,21 @@ public class Menu {
 		System.out.println("*1* Press 1 to sign up");
 		System.out.println("*2* Press 2 to sign in");
 		System.out.println("*3* Press 3 to exit");
-		s.nextInt();
+		choice = s.nextInt();
+		s.nextLine();
 		switch(choice)
 		{
 		case 1:
-			return true;
-			//break;
-		case 2:
-			if(signin())
-				return true;
-			//break;
-		case 3:
-			System.exit(0);
+			register();
 			return false;
+		case 2:
+			return !signin();
+		case 3:
+			System.out.println("ByeBye...\n");
+			System.exit(0);
+			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private static Regions chooseRegion() {
@@ -129,12 +124,27 @@ public class Menu {
 		case 1:
 			return Regions.US_WEST_2;
 		case 2:
-			//if(signin())
 			return Regions.US_EAST_2;
 		case 3:
 			return Regions.EU_WEST_3;
 		default:
 			return Regions.US_WEST_2;
 		}
+	}
+	
+	private static void WelcomeMenu(){
+		//Menu before connected 
+		boolean fContinue = true;
+		do {
+			fContinue = sign();
+		}while(fContinue);
+	}
+	
+	private static void chatAppMenu() {
+		
+		do
+		{
+			
+		}while(appManu());
 	}
 }

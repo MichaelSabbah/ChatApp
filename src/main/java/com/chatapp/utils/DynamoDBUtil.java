@@ -92,7 +92,7 @@ public class DynamoDBUtil {
         if(scanResult.getCount() > 0) {
         	if(password.equals(scanResult.getItems().get(0).get("password").getS())) {
         		System.out.println("Connected...");
-        		System.out.println("ScanResult: " + scanResult);
+        		//System.out.println("ScanResult: " + scanResult);
 
         		String regionStr = scanResult.getItems().get(0).get("location").getS();
         		Regions region = ChatappUtils.converFromStringToRegions(regionStr);

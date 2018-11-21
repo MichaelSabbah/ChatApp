@@ -8,15 +8,12 @@ public class ChatMessage{
 	private String receiverUsername;
 	private Regions destinationRegion;
 	private String content;
-	private MessageType messageType;
 
-	public ChatMessage(String senderUsername, String receiverUsername, Regions destinationRegion, String content, MessageType messageType) {
+	public ChatMessage(String senderUsername, String content) {
 		super();
 		this.senderUsername = senderUsername;
-		this.receiverUsername = receiverUsername;
-		this.destinationRegion = destinationRegion;
+		//this.destinationRegion = destinationRegion;
 		this.content = content;
-		this.messageType = messageType;
 	}
 
 	public String getContent() {
@@ -46,13 +43,5 @@ public class ChatMessage{
 
 	public void setDestinationRegions(Regions destinationRegion) {
 		this.destinationRegion = destinationRegion;
-	}
-
-	public MessageType getMessageType() {
-		return messageType;
-	}
-
-	public void setMessageType(MessageType messageType) {
-		this.messageType = messageType;
 	}
 }

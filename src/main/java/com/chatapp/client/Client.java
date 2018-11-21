@@ -8,20 +8,25 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.amazonaws.regions.Regions;
+import com.chatapp.logic.ChatMessage;
 import com.chatapp.logic.User;
 import com.chatapp.utils.AppConsts;
+import com.chatapp.utils.ChatappUtils;
+import com.chatapp.utils.MessageQueueUtil;
+import com.chatapp.utils.SQSEventUtil;
 
 public class Client {
 
     private static final String host = "localhost";
     private static final int portNumber = 1234;
     private static final String WRITING_SIGN = ">";
+    private static final String EXIT_CHAT = "~exit";
+    private static User user;
     
-    private String userName;
     private String serverHost;
     private int serverPort;
     private Scanner userInputScanner;
-    
+    private MessageQueueUtil messageQueueUtil;
     private Map<Integer,String> friends;
 
     /*public static void main(String[] args){
@@ -39,10 +44,11 @@ public class Client {
 
     }*/
 
-    private Client(String userName, String host, int portNumber){
-        this.userName = userName;
+    private Client(User user, String host, int portNumber){
+        Client.user = user;
         this.serverHost = host;
         this.serverPort = portNumber;
+        this.messageQueueUtil = new MessageQueueUtil(user.getRegion());
     }
 
     private void startClient(){
@@ -51,12 +57,21 @@ public class Client {
             Socket socket = new Socket(serverHost, serverPort);
             Thread.sleep(1000); // waiting for network communicating.
 
-            ServerThread serverThread = new ServerThread(socket, userName);
+            ServerThread serverThread = new ServerThread(socket, user.getUsername());
             Thread serverAccessThread = new Thread(serverThread);
             serverAccessThread.start();
             while(serverAccessThread.isAlive()){
                 if(scan.hasNextLine()){
-                    serverThread.addNextMessage(scan.nextLine());
+                	
+                	String messageContent = scan.nextLine();
+                	serverThread.addNextMessage(messageContent);
+                	
+                	if(EXIT_CHAT.equals(messageContent))
+                		break;
+                	
+                	//Send message to SQS
+                	ChatMessage message = new ChatMessage(user.getUsername(),messageContent);
+                	backupMessage(message);
                 }
                 // NOTE: scan.hasNextLine waits input (in the other words block this thread's process).
                 // NOTE: If you use buffered reader or something else not waiting way,
@@ -73,16 +88,17 @@ public class Client {
         }
     }
     
-    public static void connectToChatServer(User user,ChatType chatType) {
+    public static void connectToChatServer(User userToConnect,ChatType chatType) {
 
-    	String host = null;
+    	String host = "localhost";
     	
-    	if(chatType.equals(ChatType.LOCAL)) {
+    	/*if(chatType.equals(ChatType.LOCAL)) {
     		host = "public-ip";
     	}else {
     		host = getServerByLocation(user.getRegion());
-    	}
-        Client client = new Client(user.getUsername(), host, portNumber);
+    	}*/
+    	user = userToConnect;
+        Client client = new Client(userToConnect, host, portNumber);
         client.startClient();
     }
     
@@ -102,5 +118,9 @@ public class Client {
     			break;
     	}
     	return serverIp;
+    }
+    
+    private void backupMessage(ChatMessage message){
+    	messageQueueUtil.sendMessage(message);
     }
 }

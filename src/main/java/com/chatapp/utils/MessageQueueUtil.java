@@ -21,12 +21,11 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.chatapp.logic.ChatMessage;
 import com.amazonaws.services.sqs.model.Message;
-import com.chatapp.logic.MessageType;
 
 public class MessageQueueUtil {
 
 	private AmazonSQS sqs;
-	
+	private Regions region;
 	private void init(Regions region) throws Exception {
 	    /*
 	     * The ProfileCredentialsProvider will return your [default]
@@ -52,6 +51,7 @@ public class MessageQueueUtil {
 	
 	public MessageQueueUtil(Regions region) {
 		try {
+			this.region = region;
 			init(region);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,31 +60,16 @@ public class MessageQueueUtil {
 
 	public void sendMessage(ChatMessage message) {
 
-		String sqsUrl = getSQSUrlByRegion(message.getDestinationRegion());
+		String sqsUrl = getSQSUrlByRegion();
 
 		//Set message attributes
 		Map<String,MessageAttributeValue> attributes = new HashMap<String,MessageAttributeValue>();
 		MessageAttributeValue senderUsernameValue = new MessageAttributeValue();
 		senderUsernameValue.setDataType("String");
-		senderUsernameValue.setStringValue(message.getSenderUsername());
-		MessageAttributeValue receiverUsernameValue = new MessageAttributeValue();
-		receiverUsernameValue.setDataType("String");
-		receiverUsernameValue.setStringValue(message.getReceiverUsername());
+		senderUsernameValue.setStringValue(message.getSenderUsername());	
 		attributes.put("senderId", senderUsernameValue);
-		attributes.put("receiverId", receiverUsernameValue);
-		
 		
 		SendMessageRequest sendMessageRequest = new SendMessageRequest();
-		
-		if(message.getMessageType().equals(MessageType.IMAGE)) { //Sending image
-			
-			//add bucket
-			
-			MessageAttributeValue imageIdValue = new MessageAttributeValue();
-			imageIdValue.setDataType("String");
-			imageIdValue.setStringValue("imageId");
-			attributes.put("imageIdValue", imageIdValue);
-		}
 		
 		sendMessageRequest.withQueueUrl(sqsUrl)  
 						  .withMessageAttributes(attributes)
@@ -95,7 +80,7 @@ public class MessageQueueUtil {
 	
 	public void receiveMessages(Regions region) {
 		
-		String sqsUrl = getSQSUrlByRegion(region); 		
+		String sqsUrl = getSQSUrlByRegion(); 		
         
 		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(sqsUrl).withMessageAttributeNames("All");
         
@@ -103,16 +88,15 @@ public class MessageQueueUtil {
         for (Message message : messages) {
         	System.out.println("Message body: " + message.getBody());
         	System.out.println("senderId: " + message.getMessageAttributes().get("senderId").getStringValue());
-        	System.out.println("receiverId: " + message.getMessageAttributes().get("receiverId").getStringValue());
         	System.out.println("attributes: " + message.getAttributes());
         }
 	}
 	
-	private String getSQSUrlByRegion(Regions ragion  /*Locations locationId*/){
+	private String getSQSUrlByRegion(){
 		
 		String sqsUrl = null;
 		
-		switch(ragion) {
+		switch(region) {
 			case US_EAST_2:
 				sqsUrl = AppConsts.US_EAST_SQS_URL;
 				break;
@@ -131,7 +115,7 @@ public class MessageQueueUtil {
     	
     	MessageQueueUtil messageQueueUtil = new MessageQueueUtil(Regions.US_EAST_2);
     	
-    	ChatMessage message = new ChatMessage("Moshe","Amir",Regions.US_EAST_2,"This is the content of the message",MessageType.TEXT);
+    	ChatMessage message = new ChatMessage("Moshe","This is the content of the message");
     	
     	messageQueueUtil.sendMessage(message);
     	

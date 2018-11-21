@@ -1,6 +1,7 @@
 package com.chatapp.utils;
 
 import com.amazonaws.regions.Regions;
+import com.chatapp.logic.ChatMessage;
 
 public class ChatappUtils {
 	
@@ -19,6 +20,4 @@ public class ChatappUtils {
 		}
 		return region;
 	}
-	
-	
 }

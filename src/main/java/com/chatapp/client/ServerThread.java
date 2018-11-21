@@ -14,14 +14,20 @@ public class ServerThread implements Runnable {
     private final LinkedList<String> messagesToSend;
     private boolean hasMessages = false;
     
+    private final String EXIT_CHAT = "~exit";
+    
     public ServerThread(Socket socket, String userName){
         this.socket = socket;
         this.userName = userName;
         messagesToSend = new LinkedList<String>();
     }
 
-    public void addNextMessage(String message){
-        synchronized (messagesToSend){
+    public void addNextMessage(String message) throws IOException{
+    	synchronized (messagesToSend){
+        	if(EXIT_CHAT.equals(message)) {
+        		socket.close();
+        		System.out.println("ByeBye...");
+        	}
             hasMessages = true;
             messagesToSend.push(message);
         }
@@ -31,6 +37,7 @@ public class ServerThread implements Runnable {
     public void run(){
     	
         System.out.println("Welcome " + userName);
+        System.out.println("Send '~exit' at anytime to exit from the chat");
 
         //System.out.println("Local Port :" + socket.getLocalPort());
         //System.out.println("Server = " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
