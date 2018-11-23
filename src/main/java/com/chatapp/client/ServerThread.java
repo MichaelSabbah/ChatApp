@@ -13,12 +13,14 @@ public class ServerThread implements Runnable {
     private boolean isAlived;
     private final LinkedList<String> messagesToSend;
     private boolean hasMessages = false;
+    private String region = null;
     
     private final String EXIT_CHAT = "~exit";
     
-    public ServerThread(Socket socket, String userName){
+    public ServerThread(Socket socket, String userName, String region){
         this.socket = socket;
         this.userName = userName;
+        this.region = region;
         messagesToSend = new LinkedList<String>();
     }
 
@@ -38,7 +40,7 @@ public class ServerThread implements Runnable {
     	
         System.out.println("Welcome " + userName);
         System.out.println("Send '~exit' at anytime to exit from the chat");
-
+        
         //System.out.println("Local Port :" + socket.getLocalPort());
         //System.out.println("Server = " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
 
@@ -48,7 +50,10 @@ public class ServerThread implements Runnable {
             Scanner serverIn = new Scanner(serverInStream);
             // BufferedReader userBr = new BufferedReader(new InputStreamReader(userInStream));
             // Scanner userIn = new Scanner(userInStream);
-
+            
+           	serverOut.println(region);
+           	serverOut.flush();
+            
             while(!socket.isClosed()){
                 if(serverInStream.available() > 0){
                     if(serverIn.hasNextLine()){
@@ -61,7 +66,7 @@ public class ServerThread implements Runnable {
                         nextSend = messagesToSend.pop();
                         hasMessages = !messagesToSend.isEmpty();
                     }
-                    serverOut.println(userName + " > " + nextSend);
+                    serverOut.println(userName + "> " + nextSend);
                     serverOut.flush();
                 }
             }

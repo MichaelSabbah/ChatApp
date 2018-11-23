@@ -3,6 +3,7 @@
 package com.chatapp.client;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Scanner;
@@ -11,9 +12,7 @@ import com.amazonaws.regions.Regions;
 import com.chatapp.logic.ChatMessage;
 import com.chatapp.logic.User;
 import com.chatapp.utils.AppConsts;
-import com.chatapp.utils.ChatappUtils;
 import com.chatapp.utils.MessageQueueUtil;
-import com.chatapp.utils.SQSEventUtil;
 
 public class Client {
 
@@ -26,7 +25,7 @@ public class Client {
     private String serverHost;
     private int serverPort;
     private Scanner userInputScanner;
-    private MessageQueueUtil messageQueueUtil;
+    //private MessageQueueUtil messageQueueUtil;
     private Map<Integer,String> friends;
 
     /*public static void main(String[] args){
@@ -40,15 +39,13 @@ public class Client {
                 System.out.println("Invalid. Please enter again:");
             }
         }
-
-
     }*/
 
     private Client(User user, String host, int portNumber){
         Client.user = user;
         this.serverHost = host;
         this.serverPort = portNumber;
-        this.messageQueueUtil = new MessageQueueUtil(user.getRegion());
+        //this.messageQueueUtil = new MessageQueueUtil(user.getRegion());
     }
 
     private void startClient(){
@@ -56,12 +53,17 @@ public class Client {
         	Scanner scan = new Scanner(System.in);
             Socket socket = new Socket(serverHost, serverPort);
             Thread.sleep(1000); // waiting for network communicating.
-
-            ServerThread serverThread = new ServerThread(socket, user.getUsername());
+            System.out.println("Before open thread: " + user.getRegion().toString());
+            ServerThread serverThread = new ServerThread(socket, user.getUsername(),user.getRegion().toString());
             Thread serverAccessThread = new Thread(serverThread);
             serverAccessThread.start();
+            
+            //Send region to server
+           
+            boolean first = true;
             while(serverAccessThread.isAlive()){
-                if(scan.hasNextLine()){
+
+            	if(scan.hasNextLine()){
                 	
                 	String messageContent = scan.nextLine();
                 	serverThread.addNextMessage(messageContent);
@@ -70,9 +72,10 @@ public class Client {
                 		break;
                 	
                 	//Send message to SQS
-                	ChatMessage message = new ChatMessage(user.getUsername(),messageContent);
-                	backupMessage(message);
+                	//ChatMessage message = new ChatMessage(user.getUsername(),messageContent);
+                	//backupMessage(message);
                 }
+
                 // NOTE: scan.hasNextLine waits input (in the other words block this thread's process).
                 // NOTE: If you use buffered reader or something else not waiting way,
                 // NOTE: I recommends write waiting short time like following.
@@ -88,17 +91,15 @@ public class Client {
         }
     }
     
-    public static void connectToChatServer(User userToConnect,ChatType chatType) {
-
-    	String host = "localhost";
-    	
+    public static void connectToChatServer(User user,ChatType chatType) {
     	/*if(chatType.equals(ChatType.LOCAL)) {
     		host = "public-ip";
     	}else {
     		host = getServerByLocation(user.getRegion());
     	}*/
-    	user = userToConnect;
-        Client client = new Client(userToConnect, host, portNumber);
+    	Client.user = user;
+    	//String host = getServerByLocation(Client.user.getRegion());
+        Client client = new Client(Client.user, host, portNumber);
         client.startClient();
     }
     
@@ -120,7 +121,7 @@ public class Client {
     	return serverIp;
     }
     
-    private void backupMessage(ChatMessage message){
+    /*private void backupMessage(ChatMessage message){
     	messageQueueUtil.sendMessage(message);
-    }
+    }*/
 }

@@ -1,6 +1,6 @@
 // place this file the path such ends with: ChatServer/server/ChatServer.java
 
-package com.chatapp.server;
+package authserver;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,22 +9,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
-public class ChatServer {
+public class AuthChatServer {
 
-    private static final int portNumber = 1234;
+    private static final int portNumber = 5555;
 
     private int serverPort;
     private List<ClientThread> clients; // or "protected static List<ClientThread> clients;"
     private Map<Integer,ClientThread> connectedClients;
     
     public static void main(String[] args){
-        ChatServer server = new ChatServer(portNumber);
+        AuthChatServer server = new AuthChatServer(portNumber);
         server.startServer();
     }
 
-    public ChatServer(int portNumber){
+    public AuthChatServer(int portNumber){
         this.serverPort = portNumber;
     }
 
@@ -51,8 +50,6 @@ public class ChatServer {
         while(true){
             try{
                 Socket socket = serverSocket.accept();
-                
-                //Login process
                 
                 //System.out.println("accepts : " + socket.getRemoteSocketAddress());
                 ClientThread client = new ClientThread(this, socket);

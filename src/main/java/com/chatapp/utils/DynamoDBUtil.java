@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.metrics.internal.cloudwatch.spi.RequestMetricTransformer.Utils;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -42,7 +43,7 @@ public class DynamoDBUtil {
          */
         ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
         try {
-            credentialsProvider.getCredentials();
+            //credentialsProvider.getCredentials();
         } catch (Exception e) {
             throw new AmazonClientException(
                     "Cannot load the credentials from the credential profiles file. " +
@@ -51,10 +52,10 @@ public class DynamoDBUtil {
                     e);
         }
         dynamoDB = AmazonDynamoDBClientBuilder.standard()
-            .withCredentials(credentialsProvider)
+           //.withCredentials(credentialsProvider)
             .withRegion("us-west-2")
-            .build();
-    }
+            .build(); 
+}
 	
     private DynamoDBUtil() {
     	try {
@@ -71,10 +72,13 @@ public class DynamoDBUtil {
     	return dyanmoDBUtil;
     }
 	
-	public void register(User user) {
+	public boolean register(User user) {
         Map<String, AttributeValue> item = newUserItem(user);
         PutItemRequest putItemRequest = new PutItemRequest(AppConsts.USERS_TABLE_NAME,item);
         PutItemResult putItemResult = dynamoDB.putItem(putItemRequest);
+        if(putItemResult != null)
+        	return true;
+        return false;
         //System.out.println("Result: " + putItemResult);
 	}
 	

@@ -20,4 +20,17 @@ public class ChatappUtils {
 		}
 		return region;
 	}
+
+	public static String getBucketUrlByUserRegion(Regions region) {
+		
+		switch(region) {
+			case US_EAST_2:
+				return "https://chatapp-east-bucket.s3.amazonaws.com/";
+			case US_WEST_2:
+				return "https://chatapp-west-messages-bucket.s3.amazonaws.com/";
+			case EU_WEST_3:
+				return "https://chatpp-europe-messages-bucket.s3.amazonaws.com/";
+		}
+		return null;
+	}
 }

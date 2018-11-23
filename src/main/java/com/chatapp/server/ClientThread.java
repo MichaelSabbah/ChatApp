@@ -7,17 +7,28 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import com.amazonaws.regions.Regions;
+import com.chatapp.logic.ChatMessage;
+import com.chatapp.utils.ChatappUtils;
+import com.chatapp.utils.MessageQueueUtil;
+
 public class ClientThread implements Runnable {
     private Socket socket;
     private PrintWriter clientOut;
     private ChatServer server;
-
+    private MessageQueueUtil messageQueueUtil;
+    
     public ClientThread(ChatServer server, Socket socket){
         this.server = server;
         this.socket = socket;
+        //this.messageQueueUtil = new MessageQueueUtil(ChatappUtils.converFromStringToRegions(region));
     }
 
-    private PrintWriter getWriter(){
+    public void setMessageQueueUtil(MessageQueueUtil messageQueueUtil) {
+		this.messageQueueUtil = messageQueueUtil;
+	}
+
+	private PrintWriter getWriter(){
         return clientOut;
     }
 
@@ -27,7 +38,12 @@ public class ClientThread implements Runnable {
             // setup
             this.clientOut = new PrintWriter(socket.getOutputStream(), false);
             Scanner in = new Scanner(socket.getInputStream());
-
+            
+            //Read user region
+            String region = in.nextLine();
+            System.out.println("Region: " + region);
+            this.messageQueueUtil = new MessageQueueUtil(ChatappUtils.converFromStringToRegions(region));
+            
             // start communicating
             while(!socket.isClosed()){
                 if(in.hasNextLine()){
@@ -41,10 +57,19 @@ public class ClientThread implements Runnable {
                             thatClientOut.flush();
                         }
                     }
+                    
+                	//Send message to SQS
+                    String senderUserName = input.split(">")[0];
+                	ChatMessage message = new ChatMessage(senderUserName,input);
+                	backupMessage(message);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void backupMessage(ChatMessage message){
+    	messageQueueUtil.sendMessage(message);
     }
 }

@@ -9,6 +9,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -27,6 +28,7 @@ public class MessageQueueUtil {
 	private AmazonSQS sqs;
 	private Regions region;
 	private void init(Regions region) throws Exception {
+		
 	    /*
 	     * The ProfileCredentialsProvider will return your [default]
 	     * credential profile by reading from the credentials file located at
@@ -45,6 +47,7 @@ public class MessageQueueUtil {
 	
 	    sqs = AmazonSQSClientBuilder.standard()
 	                           .withCredentials(credentialsProvider)
+	                           //.withRegion()
 	                           .withRegion(region)
 	                           .build();
 	}
@@ -78,7 +81,7 @@ public class MessageQueueUtil {
 	    sqs.sendMessage(sendMessageRequest);
 	}
 	
-	public void receiveMessages(Regions region) {
+	/*public void receiveMessages(Regions region) {
 		
 		String sqsUrl = getSQSUrlByRegion(); 		
         
@@ -90,7 +93,7 @@ public class MessageQueueUtil {
         	System.out.println("senderId: " + message.getMessageAttributes().get("senderId").getStringValue());
         	System.out.println("attributes: " + message.getAttributes());
         }
-	}
+	}*/
 	
 	private String getSQSUrlByRegion(){
 		

@@ -1,10 +1,20 @@
 package com.chatapp.client;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.Scanner;
 
 import com.amazonaws.regions.Regions;
 import com.chatapp.logic.User;
+import com.chatapp.utils.ChatappUtils;
 import com.chatapp.utils.DynamoDBUtil;
+
+import authclient.AuthClient;
 
 public class Menu {
 	
@@ -12,16 +22,22 @@ public class Menu {
 	private static User user;
 	
 	static Scanner s;
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		s = new Scanner(System.in);
 		
-		do {		
+		do {
+			//Connect to global server
+			
+			
 			//Menu before connected
 			WelcomeMenu();
 			
 			//Menu after connected 
 			chatAppMenu();
 		}while(true);
+		
+		//register();
+		//signin();
 	}
 	public static void register()
 	{
@@ -33,11 +49,22 @@ public class Menu {
 		password = s.nextLine();
 		region = chooseRegion();
 		
-		user = new User(userName,password,region);
+		System.out.println("Region: " + region);
 		
-		//Register
-		dynamoDBUtil.register(user);
-		System.out.println("Congratulation! You are a member.\n");
+		user = new User(userName,password,region);
+		String regionReturned = null;
+		
+		try {
+			regionReturned = AuthClient.connectToChatServer(user, true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if(regionReturned != null)
+			System.out.println("Congratulation! You are a member.\n");
+		else
+			System.out.println("Somthing get wrong...");
+
 	}
 	public static boolean signin()
 	{
@@ -48,9 +75,19 @@ public class Menu {
 		password = s.nextLine();
 		
 		//check validation
-		user = dynamoDBUtil.login(userName, password);
+		//user = dynamoDBUtil.login(userName, password);
+		String regionReturned = null;
+		user = new User(userName,password,null);
+		try {
+			regionReturned = AuthClient.connectToChatServer(user, false);
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 		
-		if(user != null) {
+		if(regionReturned != null) {
+			System.out.println("You signin successfully");
+			user.setRegion(ChatappUtils.converFromStringToRegions(regionReturned));
 			return true;
 		}else {
 			System.out.println("Username or Password are inccorect");
@@ -82,6 +119,7 @@ public class Menu {
 			//Connect to global server
 			return true;
 		case 3:
+			viewHistory();
 			//Retrieve all messages from bucket
 			return true;
 		default:
@@ -129,6 +167,32 @@ public class Menu {
 			return Regions.EU_WEST_3;
 		default:
 			return Regions.US_WEST_2;
+		}
+	}
+	
+	private static void viewHistory() {
+		URL url = null;
+		HttpURLConnection con = null;
+		InputStream in = null;
+		Scanner s = null;
+		try {
+			String urlStr = ChatappUtils.getBucketUrlByUserRegion(user.getRegion());
+			url = new URL(urlStr + user.getUsername());
+			con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+			con.connect();
+			in = con.getInputStream();
+			s = new Scanner(con.getInputStream());
+			while(s.hasNextLine()) {
+				String line = s.nextLine();
+				System.out.println(line);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			s.close();
 		}
 	}
 	
