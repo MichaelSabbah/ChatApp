@@ -1,6 +1,6 @@
 // place this file the path such ends with: ChatServer/client/Client.java
 
-package authclient;
+package com.chatapp.authclient;
 
 import java.io.IOException;
 import java.io.InputStream;

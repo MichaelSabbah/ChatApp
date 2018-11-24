@@ -1,6 +1,6 @@
 // place this file the path such ends with: ChatServer/server/ClientThread.java
 
-package authserver;
+package com.chatapp.authserver;
 
 import java.io.IOException;
 import java.io.PrintWriter;

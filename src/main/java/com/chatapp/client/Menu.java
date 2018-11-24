@@ -10,11 +10,10 @@ import java.net.URL;
 import java.util.Scanner;
 
 import com.amazonaws.regions.Regions;
+import com.chatapp.authclient.AuthClient;
 import com.chatapp.logic.User;
 import com.chatapp.utils.ChatappUtils;
 import com.chatapp.utils.DynamoDBUtil;
-
-import authclient.AuthClient;
 
 public class Menu {
 	

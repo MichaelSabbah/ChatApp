@@ -1,27 +1,16 @@
 package com.chatapp.utils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
-import com.amazonaws.services.ec2.model.RunInstancesRequest;
-import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.chatapp.logic.ChatMessage;
-import com.amazonaws.services.sqs.model.Message;
 
 public class MessageQueueUtil {
 
@@ -106,8 +95,14 @@ public class MessageQueueUtil {
 			case US_WEST_2:
 				sqsUrl = AppConsts.US_WEST_SQS_URL;
 				break;
-			case EU_WEST_2:
+			case EU_WEST_3:
 				sqsUrl = AppConsts.EUORPE_PARIS_SQS_URL;
+				break;
+			case EU_CENTRAL_1:
+				sqsUrl = AppConsts.GLOBAL_SQS_URL;
+				break;
+			default:
+				sqsUrl = null;
 				break;
 		}
 		
@@ -116,7 +111,7 @@ public class MessageQueueUtil {
 
     public static void main(String[] args) {
     	
-    	MessageQueueUtil messageQueueUtil = new MessageQueueUtil(Regions.US_EAST_2);
+    	MessageQueueUtil messageQueueUtil = new MessageQueueUtil(Regions.EU_CENTRAL_1);
     	
     	ChatMessage message = new ChatMessage("Moshe","This is the content of the message");
     	
