@@ -60,7 +60,9 @@ public class ClientThread implements Runnable {
                     
                 	//Send message to SQS
                     String senderUserName = input.split(">")[0];
-                	ChatMessage message = new ChatMessage(senderUserName,input);
+                    String messageContent = input.split(">")[1].substring(1);
+                    System.out.println("Message after split: " + senderUserName);
+                	ChatMessage message = new ChatMessage(senderUserName,messageContent);
                 	backupMessage(message);
                 }
             }

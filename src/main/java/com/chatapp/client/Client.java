@@ -3,103 +3,74 @@
 package com.chatapp.client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Map;
 import java.util.Scanner;
 
 import com.amazonaws.regions.Regions;
-import com.chatapp.logic.ChatMessage;
 import com.chatapp.logic.User;
 import com.chatapp.utils.AppConsts;
-import com.chatapp.utils.MessageQueueUtil;
 
 public class Client {
 
-    private static final String host = "localhost";
-    private static final int portNumber = 1234;
-    private static final String WRITING_SIGN = ">";
+    private static final int PORT_NUMBER = 1234;
     private static final String EXIT_CHAT = "~exit";
     private static User user;
     
     private String serverHost;
     private int serverPort;
-    private Scanner userInputScanner;
-    //private MessageQueueUtil messageQueueUtil;
-    private Map<Integer,String> friends;
-
-    /*public static void main(String[] args){
-        String readName = null;
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Please input username:");
-        while(readName == null || readName.trim().equals("")){
-            // null, empty, whitespace(s) not allowed.
-            readName = scan.nextLine();
-            if(readName.trim().equals("")){
-                System.out.println("Invalid. Please enter again:");
-            }
-        }
-    }*/
 
     private Client(User user, String host, int portNumber){
         Client.user = user;
         this.serverHost = host;
         this.serverPort = portNumber;
-        //this.messageQueueUtil = new MessageQueueUtil(user.getRegion());
     }
 
     private void startClient(){
-        try{
-        	Scanner scan = new Scanner(System.in);
+    	Scanner scan = null;
+    	try{
+        	scan = new Scanner(System.in);
             Socket socket = new Socket(serverHost, serverPort);
             Thread.sleep(1000); // waiting for network communicating.
             System.out.println("Before open thread: " + user.getRegion().toString());
             ServerThread serverThread = new ServerThread(socket, user.getUsername(),user.getRegion().toString());
             Thread serverAccessThread = new Thread(serverThread);
             serverAccessThread.start();
-            
-            //Send region to server
            
-            boolean first = true;
             while(serverAccessThread.isAlive()){
 
             	if(scan.hasNextLine()){
                 	
                 	String messageContent = scan.nextLine();
+                	System.out.println("Message before sent to serverThread: " + messageContent);
                 	serverThread.addNextMessage(messageContent);
                 	
                 	if(EXIT_CHAT.equals(messageContent))
                 		break;
-                	
-                	//Send message to SQS
-                	//ChatMessage message = new ChatMessage(user.getUsername(),messageContent);
-                	//backupMessage(message);
                 }
 
                 // NOTE: scan.hasNextLine waits input (in the other words block this thread's process).
                 // NOTE: If you use buffered reader or something else not waiting way,
                 // NOTE: I recommends write waiting short time like following.
-//                 else {
-//                    Thread.sleep(200);
-//                 }
             }
         }catch(IOException ex){
             System.err.println("Fatal Connection error!");
             ex.printStackTrace();
         }catch(InterruptedException ex){
             System.out.println("Interrupted");
+        }finally {
+        	scan.close();
         }
     }
     
     public static void connectToChatServer(User user,ChatType chatType) {
-    	/*if(chatType.equals(ChatType.LOCAL)) {
+    	String host = "";
+    	if(chatType.equals(ChatType.LOCAL)) {
     		host = "public-ip";
     	}else {
     		host = getServerByLocation(user.getRegion());
-    	}*/
+    	}
     	Client.user = user;
-    	//String host = getServerByLocation(Client.user.getRegion());
-        Client client = new Client(Client.user, host, portNumber);
+        Client client = new Client(Client.user, host, PORT_NUMBER);
         client.startClient();
     }
     
@@ -115,13 +86,11 @@ public class Client {
     		case EU_WEST_3:
     			serverIp = AppConsts.EUORPE_PARIS_SERVER_IP;
     			break;
+    		case EU_CENTRAL_1:
+    			serverIp = AppConsts.GLOBAL_SERVER_IP;
     		default:
     			break;
     	}
     	return serverIp;
     }
-    
-    /*private void backupMessage(ChatMessage message){
-    	messageQueueUtil.sendMessage(message);
-    }*/
 }

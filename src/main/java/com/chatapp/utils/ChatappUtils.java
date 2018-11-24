@@ -1,7 +1,6 @@
 package com.chatapp.utils;
 
 import com.amazonaws.regions.Regions;
-import com.chatapp.logic.ChatMessage;
 
 public class ChatappUtils {
 	
@@ -14,8 +13,11 @@ public class ChatappUtils {
 			case "US_WEST_2":
 				region = Regions.US_WEST_2;
 				break;
-			case "US_WEST_3":
+			case "EU_WEST_3":
 				region = Regions.EU_WEST_3;
+				break;
+			case "EU_CENTRAL_1":
+				region = Regions.EU_CENTRAL_1;
 				break;
 		}
 		return region;
@@ -25,12 +27,15 @@ public class ChatappUtils {
 		
 		switch(region) {
 			case US_EAST_2:
-				return "https://chatapp-east-bucket.s3.amazonaws.com/";
+				return "https://chatapp-east-messages-bucket.s3.amazonaws.com/";
 			case US_WEST_2:
 				return "https://chatapp-west-messages-bucket.s3.amazonaws.com/";
 			case EU_WEST_3:
-				return "https://chatpp-europe-messages-bucket.s3.amazonaws.com/";
+				return "https://chatpp-paris-messages-bucket.s3.amazonaws.com/";
+			case EU_CENTRAL_1:
+				return "https://chatapp-global-messages-bucket.s3.amazonaws.com/";
+			default:
+				return null;
 		}
-		return null;
 	}
 }

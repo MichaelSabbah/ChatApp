@@ -43,7 +43,7 @@ public class DynamoDBUtil {
          */
         ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
         try {
-            //credentialsProvider.getCredentials();
+            credentialsProvider.getCredentials();
         } catch (Exception e) {
             throw new AmazonClientException(
                     "Cannot load the credentials from the credential profiles file. " +
@@ -52,7 +52,7 @@ public class DynamoDBUtil {
                     e);
         }
         dynamoDB = AmazonDynamoDBClientBuilder.standard()
-           //.withCredentials(credentialsProvider)
+        	.withCredentials(credentialsProvider)
             .withRegion("us-west-2")
             .build(); 
 }

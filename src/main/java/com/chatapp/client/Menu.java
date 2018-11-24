@@ -1,11 +1,9 @@
 package com.chatapp.client;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -154,7 +152,7 @@ public class Menu {
 		System.out.println("Please choose your region: ");
 		System.out.println("*1* US-WEST");
 		System.out.println("*2* US-EAST");
-		System.out.println("*3* LONDON");
+		System.out.println("*3* PARIS");
 		choice = s.nextInt();
 		switch(choice)
 		{
@@ -182,10 +180,12 @@ public class Menu {
 			con.connect();
 			in = con.getInputStream();
 			s = new Scanner(con.getInputStream());
+			System.out.println("Your messaages history:");
 			while(s.hasNextLine()) {
 				String line = s.nextLine();
 				System.out.println(line);
 			}
+			System.out.println("\n");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
